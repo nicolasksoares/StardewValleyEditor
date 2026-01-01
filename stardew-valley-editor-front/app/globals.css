@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@layer theme {
+  :root {
+    /* Paleta Retro Baseada na discussão anterior */
+    --retro-beige: #e3d4b5;
+    --retro-dark-beige: #cdbb99;
+    --retro-brown: #4a332a;
+    --retro-gold: #efc565;
+    
+    /* Configurações padrão do sistema */
+    --background: var(--retro-beige);
+    --foreground: var(--retro-brown);
+    
+    /* Força o radius 0 para tudo (visual quadrado) */
+    --radius: 0;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 outline-none;
+  }
+  
+  body {
+    @apply bg-retro-beige text-retro-brown;
+    /* Importante: Desativa o antialiasing para fontes pixeladas ficarem nítidas */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale; 
+  }
+
+  /* Custom Scrollbar para combinar com o tema */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--retro-dark-beige);
+    border-left: 4px solid var(--retro-brown);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--retro-brown);
+    border: 2px solid var(--retro-beige);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5a4339;
+  }
+}
+
+/* Classes utilitárias personalizadas para facilitar */
+@utility bg-retro-beige {
+  background-color: var(--retro-beige);
+}
+@utility bg-retro-dark-beige {
+  background-color: var(--retro-dark-beige);
+}
+@utility bg-retro-brown {
+  background-color: var(--retro-brown);
+}
+@utility bg-retro-gold {
+  background-color: var(--retro-gold);
+}
+
+@utility text-retro-brown {
+  color: var(--retro-brown);
+}
+@utility border-retro-brown {
+  border-color: var(--retro-brown);
+}
+@utility border-retro-beige {
+  border-color: var(--retro-beige);
+}
