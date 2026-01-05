@@ -1,33 +1,35 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Itim } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { GameProvider } from "@/contexts/GameContext"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const itim = Itim({ 
+  weight: "400",
+  subsets: ["latin"] 
+})
 
 export const metadata: Metadata = {
-  title: "RPG Menu System",
-  description: "Stardew Valley-inspired RPG menu interface with pixel-art aesthetics",
-  generator: "v0.app",
+  title: "Stardew Valley Editor",
+  description: "Stardew Valley-Editor RPG menu interface with pixel-art aesthetics by nik",
+  generator: "",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/PlayerIcon.png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "/PlayerIcon.png",
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
+        url: "/PlayerIcon.png",
         type: "image/svg+xml",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/PlayerIcon.png",
   },
 }
 
@@ -38,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className="font-sans" suppressHydrationWarning={true}>
+      <body className={itim.className} suppressHydrationWarning={true}>
         <GameProvider>{children}</GameProvider>
         <Analytics />
       </body>
