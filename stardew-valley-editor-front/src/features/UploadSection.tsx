@@ -48,12 +48,7 @@ export function UploadSection({ onFileUpload, isLoading = false }: UploadSection
     // AJUSTE 1: Padding externo menor no mobile (p-2) e normal no PC (md:p-4)
     <div className="flex items-center justify-center p-2 md:p-4 w-full">
       <ComplexGameFrame className="max-w-[906px] w-full">
-        
-        {/* AJUSTE 2: Container Interno (Fundo Bege)
-           - h-auto: Deixa a altura se ajustar ao conteúdo no mobile (fim do "esticado")
-           - md:min-h-[600px]: Mantém a altura imponente só no Desktop
-           - p-4: Padding menor no mobile para ganhar espaço lateral
-        */}
+
         <div className="bg-[#EACB91] w-full h-auto md:min-h-[600px] flex flex-col items-center p-4 md:p-8 text-[#4A332A]">
             
             {/* AJUSTE 3: Tamanho da fonte e margens reduzidas no mobile */}

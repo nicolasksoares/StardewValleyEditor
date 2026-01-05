@@ -3,6 +3,7 @@ export interface SaveData {
   farmName: string;
   money: number;
   totalEarnings: number;
+  originalXML: string;
 }
 
 export const parseSaveFile = (file: File): Promise<SaveData> => {
@@ -25,6 +26,7 @@ export const parseSaveFile = (file: File): Promise<SaveData> => {
           farmName: xmlDoc.querySelector("player > farmName")?.textContent || "Farm",
           money: Number(xmlDoc.querySelector("player > money")?.textContent || 0),
           totalEarnings: Number(xmlDoc.querySelector("player > totalMoneyEarned")?.textContent || 0),
+          originalXML: text,
         };
 
         resolve(data);

@@ -1,13 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import RPGMenu from "@/features/RPGMenu";
-import { UploadSection } from "@/features/UploadSection";
-import { parseSaveFile, SaveData } from "@/utils/SaveFileParser";
+// Verifique se os caminhos dos imports estão corretos conforme suas pastas
+// Se UploadSection estiver em components, mude de @/features para @/components
+import { UploadSection } from "@/features/UploadSection"; 
+import { PlayerPage } from "@/components/player-page";
+import { InventoryPage } from "@/components/inventory-page";
+import { RelationshipsPage } from "@/components/relationships-page";
+import { SearchItemsPage } from "@/components/search-items-page";
 import { RetroToast, ToastType } from "@/components/ui/RetroToast";
+import { parseSaveFile, SaveData } from "@/utils/SaveFileParser";
+
+type TabType = "player" | "inventory" | "relationships" | "search";
 
 export default function Home() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
+  const [currentTab, setCurrentTab] = useState<TabType>("player");
   
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string; type: ToastType }>({
@@ -29,18 +37,33 @@ export default function Home() {
     closeToast();
 
     try {
-      await new Promise(r => setTimeout(r, 800));
-
       const data = await parseSaveFile(file);
       
-      showToast(`Welcome back, ${data.playerName}!`, "success");
       setSaveData(data);
+      setCurrentTab("player");
+      showToast(`Welcome back, ${data.playerName}!`, "success");
+
     } catch (error) {
-      console.error(error);
       const errorMsg = error instanceof Error ? error.message : "Failed to load save file.";
       showToast(errorMsg, "error");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const renderContent = () => {
+    switch (currentTab) {
+      case "player":
+        // Passamos initialData aqui para preencher os inputs
+        return <PlayerPage onNavigate={setCurrentTab} initialData={saveData} />;
+      case "inventory":
+        return <InventoryPage onNavigate={setCurrentTab} />;
+      case "relationships":
+        return <RelationshipsPage onNavigate={setCurrentTab} />;
+      case "search":
+        return <SearchItemsPage onNavigate={setCurrentTab} />;
+      default:
+        return <PlayerPage onNavigate={setCurrentTab} initialData={saveData} />;
     }
   };
 
@@ -57,7 +80,7 @@ export default function Home() {
         <UploadSection onFileUpload={handleFile} isLoading={isLoading} />
       ) : (
         <div className="animate-in fade-in zoom-in duration-300 w-full flex justify-center">
-           <RPGMenu /> 
+           {renderContent()}
         </div>
       )}
     </main>

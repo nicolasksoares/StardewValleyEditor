@@ -5,13 +5,14 @@ import type { Item, PlayerStats, Character } from "@/types"
 import { INITIAL_INVENTORY } from "@/data/items"
 import { CHARACTERS } from "@/data/characters"
 
+// AUMENTAMOS O ESCOPO: O inventário agora aceita 'null' (espaços vazios)
 interface GameContextType {
-  inventory: Item[]
+  inventory: (Item | null)[] 
   playerStats: PlayerStats
   characters: Character[]
   selectedItem: number | null
   isDarkMode: boolean
-  setInventory: (inventory: Item[]) => void
+  setInventory: (inventory: (Item | null)[]) => void
   setPlayerStats: (stats: PlayerStats) => void
   setSelectedItem: (id: number | null) => void
   addItem: (item: Item) => void
@@ -25,8 +26,20 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
 
+// Função auxiliar para inicializar o grid de 36 slots
+const initializeGrid = (items: Item[]): (Item | null)[] => {
+  const grid = Array(36).fill(null);
+  // Preenche os primeiros slots com os itens iniciais
+  items.forEach((item, index) => {
+    if (index < 36) grid[index] = item;
+  });
+  return grid;
+}
+
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [inventory, setInventory] = useState<Item[]>(INITIAL_INVENTORY)
+  // Inicializa com 36 espaços (alguns com itens, outros null)
+  const [inventory, setInventory] = useState<(Item | null)[]>(() => initializeGrid(INITIAL_INVENTORY))
+  
   const [selectedItem, setSelectedItem] = useState<number | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [playerStats, setPlayerStats] = useState<PlayerStats>({
@@ -58,7 +71,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     changeCallbackRef.current = null
   }
 
-  const setInventoryWithNotify = (newInventory: Item[]) => {
+  const setInventoryWithNotify = (newInventory: (Item | null)[]) => {
     setInventory(newInventory)
     notifyChange()
   }
@@ -68,32 +81,59 @@ export function GameProvider({ children }: { children: ReactNode }) {
     notifyChange()
   }
 
-  const addItem = (item: Item) => {
-    const existingItem = inventory.find((i) => i.id === item.id)
-    if (existingItem) {
-      updateItemQuantity(item.id, existingItem.quantity + item.quantity)
+  const addItem = (newItem: Item) => {
+    // 1. Tenta empilhar se o item já existe
+    const existingIndex = inventory.findIndex((i) => i !== null && i.id === newItem.id);
+    
+    if (existingIndex !== -1) {
+      const currentItem = inventory[existingIndex]!;
+      updateItemQuantity(newItem.id, currentItem.quantity + newItem.quantity);
+      return;
+    } 
+
+    // 2. Se não existe, procura o primeiro buraco vazio (null)
+    const emptySlotIndex = inventory.findIndex((i) => i === null);
+    
+    if (emptySlotIndex !== -1) {
+      const newInv = [...inventory];
+      newInv[emptySlotIndex] = newItem;
+      setInventoryWithNotify(newInv);
     } else {
-      setInventoryWithNotify([...inventory, item])
+      // Mochila cheia! (Opcional: tratar erro)
+      console.warn("Inventory Full!");
     }
   }
 
   const removeItem = (id: number) => {
-    setInventoryWithNotify(inventory.filter((item) => item.id !== id))
+    // Ao remover, transformamos o slot em NULL (não encolhe o array)
+    setInventoryWithNotify(inventory.map((item) => (item?.id === id ? null : item)))
+    
     if (selectedItem === id) setSelectedItem(null)
   }
 
   const updateItemQuantity = (id: number, quantity: number) => {
-    setInventoryWithNotify(inventory.map((item) => (item.id === id ? { ...item, quantity } : item)))
+    setInventoryWithNotify(
+      inventory.map((item) => (item?.id === id ? { ...item, quantity } : item))
+    )
   }
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
   }
 
+  // A LÓGICA DE OURO: SWAP (TROCA) EM VEZ DE SPLICE (DESLOCAMENTO)
   const moveItem = (fromIndex: number, toIndex: number) => {
+    // Copia o array
     const newInventory = [...inventory]
-    const [movedItem] = newInventory.splice(fromIndex, 1)
-    newInventory.splice(toIndex, 0, movedItem)
+    
+    // Pega os itens nas duas posições
+    const itemFrom = newInventory[fromIndex]
+    const itemTo = newInventory[toIndex]
+
+    // Troca eles de lugar
+    newInventory[toIndex] = itemFrom
+    newInventory[fromIndex] = itemTo // Se 'toIndex' era null, agora 'fromIndex' vira null
+
     setInventoryWithNotify(newInventory)
   }
 
